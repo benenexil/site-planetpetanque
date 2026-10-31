@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>Inscription · Planet Pétanque</title>
+<style>
+  :root { --nuit:#16233F; --fond:#F6F9F7; --ciel:#BFDDF5; --ciel-fonce:#1F5C8C; --ciel-trait:#8FC2E8;
+          --menthe:#B5E3C6; --menthe-texte:#1E4D33; --blanc:#FFFFFF; --gris:#6B7280; --trait:#DCE7E1; --rouge:#B42318; --vert:#2E7D4F; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--fond); color:var(--nuit);
+         font-family:system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size:16px; line-height:1.45; }
+  header { background:var(--ciel); padding:28px 16px 20px; }
+  .cadre { max-width:520px; margin:0 auto; }
+  .marque { color:var(--ciel-fonce); font-size:13px; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin:0; }
+  h1 { font-size:24px; line-height:1.25; margin:6px 0 0; }
+  .sous { color:var(--ciel-fonce); margin:8px 0 0; font-size:15px; }
+  main { padding:16px; }
+  .carte { background:var(--blanc); border:1px solid var(--trait); border-radius:12px; padding:16px; margin-bottom:14px; }
+  .carte h2 { font-size:17px; margin:0 0 8px; }
+  .carte p { margin:0 0 10px; } .carte p:last-child { margin-bottom:0; }
+  .discret { color:var(--gris); font-size:14px; }
+  label { display:block; font-weight:600; font-size:14px; margin:12px 0 4px; }
+  input { width:100%; font:inherit; padding:12px; border:1.5px solid var(--trait); border-radius:10px; background:var(--blanc); color:var(--nuit); }
+  input:focus { outline:3px solid var(--ciel-trait); border-color:var(--ciel-fonce); }
+  #code { font-size:26px; font-weight:700; letter-spacing:6px; text-align:center; }
+  .bouton { display:block; width:100%; text-align:center; text-decoration:none; font:inherit; font-weight:600; cursor:pointer;
+            border-radius:10px; padding:14px 16px; margin-top:14px; border:1.5px solid var(--ciel-trait); background:var(--blanc); color:var(--nuit); }
+  .bouton.plein { background:var(--menthe); border-color:var(--menthe); color:var(--menthe-texte); }
+  .bouton:disabled { opacity:.55; cursor:default; }
+  .lien { font:inherit; color:var(--ciel-fonce); background:none; border:0; padding:0; cursor:pointer; text-decoration:underline; }
+  .erreur { color:var(--rouge); font-size:14px; margin:10px 0 0; }
+  .ok { color:var(--vert); font-weight:600; }
+  .clubs { margin-top:8px; }
+  .club { display:block; width:100%; text-align:left; font:inherit; background:var(--blanc); border:1.5px solid var(--trait); border-radius:10px;
+          padding:10px 12px; margin-top:6px; cursor:pointer; color:var(--nuit); }
+  .club small { display:block; color:var(--gris); }
+  .club[aria-pressed="true"] { border-color:var(--ciel-fonce); background:#EEF5FB; }
+  footer { padding:4px 16px 32px; }
+  [hidden] { display:none !important; }
+</style>
+</head>
+<body>
+<header><div class="cadre">
+  <p class="marque"><img src="/logo-pp.png" alt="" width="28" height="28" style="vertical-align:middle;margin-right:8px">Planet Pétanque</p>
+  <h1>Inscription à votre club</h1>
+  <p class="sous">Suivez vos résultats, vos statistiques, vos matchs du club et vos matchs entre copains.</p>
+</div></header>
+<main><div class="cadre">
+
+  <!-- 1. L'e-mail, vérifié par un code -->
+  <section class="carte" id="etapeEmail">
+    <h2>Votre e-mail</h2>
+    <p class="discret">Il sera votre compte : pas de mot de passe, un code reçu par e-mail suffit pour vous connecter.</p>
+    <p class="discret">Ensuite, vous choisirez votre club. Si votre club vous a déjà donné l’accès avec cette adresse, vous serez reconnu automatiquement.</p>
+    <form id="formEmail">
+      <label for="email">Adresse e-mail</label>
+      <input id="email" type="email" autocomplete="email" required maxlength="200" placeholder="prenom.nom@exemple.fr">
+      <button class="bouton plein" id="envoyer" type="submit">Recevoir le code</button>
+    </form>
+    <form id="formCode" hidden>
+      <p class="discret" id="codeEnvoye"></p>
+      <label for="code">Code reçu par e-mail</label>
+      <input id="code" inputmode="numeric" autocomplete="one-time-code" maxlength="10" pattern="[0-9]*" required>
+      <button class="bouton plein" id="valider" type="submit">Valider le code</button>
+      <p style="margin:12px 0 0"><button class="lien" id="autreEmail" type="button">Changer d’adresse</button></p>
+    </form>
+    <p class="erreur" id="erreurEmail" role="alert" hidden></p>
+  </section>
+
+  <!-- 2. Nom, prénom, club -->
+  <section class="carte" id="etapeDemande" hidden>
+    <h2>Vos coordonnées</h2>
+    <p class="discret">Connecté avec <strong id="emailConnecte"></strong>. <button class="lien" id="deconnexion" type="button">Changer</button></p>
+    <form id="formDemande">
+      <label for="nom">Nom</label>
+      <input id="nom" required maxlength="80" autocomplete="family-name" style="text-transform:uppercase">
+      <label for="prenom">Prénom</label>
+      <input id="prenom" required maxlength="80" autocomplete="given-name">
+      <label for="licence">N° de licence <span class="discret">(facultatif)</span></label>
+      <input id="licence" maxlength="30" inputmode="numeric">
+      <label for="chercheClub">Votre club</label>
+      <input id="chercheClub" type="search" placeholder="Nom du club ou ville" autocomplete="off">
+      <div class="clubs" id="clubs"></div>
+      <button class="bouton plein" id="demander" type="submit" disabled>Envoyer ma demande</button>
+    </form>
+    <p class="erreur" id="erreurDemande" role="alert" hidden></p>
+  </section>
+
+  <!-- 3. Où en est-on -->
+  <section class="carte" id="etapeEtat" hidden>
+    <h2 id="etatTitre"></h2>
+    <p id="etatTexte"></p>
+    <a class="bouton plein" id="installer" href="#" hidden>Installer l’application (Android)</a>
+    <p class="discret" id="etatAide" hidden>Dans l’application, touchez « Sauvegarder avec mon e-mail » (en bas de l’accueil) et entrez cette même adresse : votre club s’affichera.</p>
+  </section>
+
+</div></main>
+<footer><div class="cadre"><p class="discret">Planet Pétanque · version bêta</p></div></footer>
+
+<script src="/admin/supabase.js"></script>
+<script>
+(function () {
+  var SUPABASE_URL = 'https://zaguyaehtpbayzadbpjn.supabase.co';
+  var SUPABASE_CLE = 'sb_publishable_F__83h0YqfeXxxvaklkeeQ_9wAXXVWs';
+  var base = window.supabase.createClient(SUPABASE_URL, SUPABASE_CLE);
+  var el = function (id) { return document.getElementById(id); };
+  var montrer = function (id, oui) { el(id).hidden = !oui; };
+  var erreur = function (id, texte) { el(id).textContent = texte || ''; montrer(id, !!texte); };
+  var adresse = '';
+  var clubChoisi = null;
+
+  // ----- 1. E-mail et code -----
+  el('formEmail').addEventListener('submit', async function (e) {
+    e.preventDefault(); erreur('erreurEmail', '');
+    adresse = el('email').value.trim().toLowerCase();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(adresse)) return erreur('erreurEmail', 'Cette adresse e-mail est mal écrite.');
+    el('envoyer').disabled = true;
+    var r;
+    try { r = await base.auth.signInWithOtp({ email: adresse, options: { shouldCreateUser: true } }); } catch (x) { r = { error: { message: 'reseau' } }; }
+    el('envoyer').disabled = false;
+    if (r.error) return erreur('erreurEmail', /rate|limit|seconds/i.test(r.error.message || '') ? 'Trop de codes demandés : patientez quelques minutes.' : 'Envoi du code impossible pour le moment. Réessayez.');
+    el('codeEnvoye').textContent = 'Un code à 6 chiffres a été envoyé à ' + adresse + '. Pensez à regarder dans les courriers indésirables.';
+    montrer('formEmail', false); montrer('formCode', true); el('code').value = ''; el('code').focus();
+  });
+  el('formCode').addEventListener('submit', async function (e) {
+    e.preventDefault(); erreur('erreurEmail', '');
+    el('valider').disabled = true;
+    var r;
+    try { r = await base.auth.verifyOtp({ email: adresse, token: el('code').value.replace(/\s/g, ''), type: 'email' }); } catch (x) { r = { error: {} }; }
+    el('valider').disabled = false;
+    if (r.error) return erreur('erreurEmail', 'Code incorrect ou expiré. Vérifiez-le, ou demandez un nouveau code.');
+    await situation();
+  });
+  el('autreEmail').addEventListener('click', function () { montrer('formCode', false); montrer('formEmail', true); erreur('erreurEmail', ''); });
+  el('deconnexion').addEventListener('click', async function () {
+    await base.auth.signOut();
+    montrer('etapeDemande', false); montrer('etapeEtat', false); montrer('etapeEmail', true);
+    montrer('formCode', false); montrer('formEmail', true);
+  });
+
+  // ----- 2. Le club -----
+  var minuteur = null;
+  el('chercheClub').addEventListener('input', function () { clearTimeout(minuteur); minuteur = setTimeout(chercher, 300); });
+  async function chercher() {
+    var texte = el('chercheClub').value.replace(/[%_*,()\\"]/g, ' ').trim();
+    var q = base.from('clubs').select('id, nom, ville');
+    if (texte) q = q.or('nom.ilike.%' + texte + '%,ville.ilike.%' + texte + '%');
+    var r = await q.order('nom').limit(20);
+    var zone = el('clubs'); zone.replaceChildren();
+    (r.data || []).forEach(function (c) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'club';
+      b.setAttribute('aria-pressed', clubChoisi && clubChoisi.id === c.id ? 'true' : 'false');
+      b.textContent = c.nom;
+      if (c.ville) { var s = document.createElement('small'); s.textContent = c.ville; b.appendChild(s); }
+      b.addEventListener('click', function () { clubChoisi = c; chercher(); verifierComplet(); });
+      zone.appendChild(b);
+    });
+    if (!r.data || !r.data.length) { var p = document.createElement('p'); p.className = 'discret'; p.textContent = 'Aucun club trouvé.'; zone.appendChild(p); }
+  }
+  function verifierComplet() { el('demander').disabled = !(el('nom').value.trim() && el('prenom').value.trim() && clubChoisi); }
+  el('nom').addEventListener('input', verifierComplet); el('prenom').addEventListener('input', verifierComplet);
+
+  el('formDemande').addEventListener('submit', async function (e) {
+    e.preventDefault(); erreur('erreurDemande', '');
+    if (!clubChoisi) return;
+    el('demander').disabled = true;
+    var r = await base.rpc('demander_adhesion', { club: clubChoisi.id, nom_saisi: el('nom').value.trim(), prenom_saisi: el('prenom').value.trim(),
+      licence_saisie: el('licence').value.trim() || null, email_saisi: adresse });
+    el('demander').disabled = false;
+    if (r.error) return erreur('erreurDemande', r.error.code === '53400' ? 'Trop de demandes en attente.' : 'Envoi impossible pour le moment. Réessayez.');
+    await situation();
+  });
+
+  // ----- 3. Où en est ce compte : membre, demande en attente ou refusée, ou rien encore -----
+  async function situation() {
+    var s = (await base.auth.getSession()).data.session;
+    if (!s || !s.user || !s.user.email) { montrer('etapeEmail', true); return; }
+    adresse = s.user.email;
+    el('emailConnecte').textContent = adresse;
+    montrer('etapeEmail', false);
+    try { await base.rpc('lier_par_email'); } catch (x) { /* rien */ }
+    var liens = await base.from('comptes_adherents').select('club_id').eq('utilisateur', s.user.id);
+    var demandes = await base.from('demandes_adhesion').select('id, club_id, etat, motif_refus').eq('utilisateur', s.user.id).in('etat', ['attente', 'refusee']).order('cree_le', { ascending: false });
+    var ids = (liens.data || []).map(function (l) { return l.club_id; }).concat((demandes.data || []).map(function (d) { return d.club_id; }));
+    var noms = {};
+    if (ids.length) { var c = await base.from('clubs').select('id, nom').in('id', ids); (c.data || []).forEach(function (x) { noms[x.id] = x.nom; }); }
+    if (liens.data && liens.data.length) {
+      return etat('Bienvenue !', 'Vous êtes membre de ' + liens.data.map(function (l) { return noms[l.club_id] || 'votre club'; }).join(', ') + '.', true);
+    }
+    var attente = (demandes.data || []).filter(function (d) { return d.etat === 'attente'; })[0];
+    if (attente) return etat('Demande envoyée', 'Votre demande pour rejoindre ' + (noms[attente.club_id] || 'le club') + ' est entre les mains de son administrateur. Revenez sur cette page (avec la même adresse) une fois qu’elle sera acceptée : le lien d’installation de l’application s’y affichera.', false);
+    var refus = (demandes.data || []).filter(function (d) { return d.etat === 'refusee'; })[0];
+    montrer('etapeEtat', !!refus);
+    if (refus) { el('etatTitre').textContent = 'Demande refusée'; el('etatTexte').textContent = 'Votre demande pour ' + (noms[refus.club_id] || 'le club') + ' a été refusée' + (refus.motif_refus ? ' : ' + refus.motif_refus : '') + '. Vous pouvez en envoyer une nouvelle.'; montrer('installer', false); montrer('etatAide', false); }
+    montrer('etapeDemande', true);
+    chercher();
+  }
+  async function etat(titre, texte, membre) {
+    montrer('etapeDemande', false); montrer('etapeEtat', true);
+    el('etatTitre').textContent = titre; el('etatTexte').textContent = texte;
+    montrer('installer', false); montrer('etatAide', membre);
+    if (membre) {
+      // Le lien d'installation : seulement pour un membre accepté (pas affiché aux autres).
+      try {
+        var v = await (await fetch('/version.json', { cache: 'no-store' })).json();
+        if (v && v.lien) { el('installer').href = v.lien; montrer('installer', true); }
+      } catch (x) { /* pas de lien : l'administrateur le transmettra */ }
+    }
+  }
+
+  situation();
+})();
+</script>
+</body>
+</html>
