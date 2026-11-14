@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>Invitation · Planet Pétanque</title>
+<style>
+  :root { --nuit:#16233F; --fond:#F6F9F7; --ciel:#BFDDF5; --ciel-fonce:#1F5C8C; --ciel-trait:#8FC2E8;
+          --menthe:#B5E3C6; --menthe-texte:#1E4D33; --blanc:#FFFFFF; --gris:#6B7280; --trait:#DCE7E1; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--fond); color:var(--nuit);
+         font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size:16px; line-height:1.45; }
+  header { background:var(--ciel); padding:28px 16px 20px; }
+  .cadre { max-width:520px; margin:0 auto; }
+  .marque { color:var(--ciel-fonce); font-size:13px; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin:0; }
+  h1 { font-size:24px; line-height:1.25; margin:6px 0 0; text-wrap:balance; }
+  .sous { color:var(--ciel-fonce); margin:8px 0 0; font-size:15px; }
+  main { padding:16px; }
+  .carte { background:var(--blanc); border:1px solid var(--trait); border-radius:12px; padding:16px; margin-bottom:14px; }
+  .carte h2 { font-size:17px; margin:0 0 8px; }
+  .carte p { margin:0 0 10px; } .carte p:last-child { margin-bottom:0; }
+  .discret { color:var(--gris); font-size:14px; }
+  ol { margin:0; padding-left:22px; } li { margin-bottom:6px; }
+  .bouton { display:block; width:100%; text-align:center; text-decoration:none; font:inherit; font-weight:600; cursor:pointer;
+            border-radius:10px; padding:14px 16px; margin-top:12px; border:1.5px solid var(--ciel-trait); background:var(--blanc); color:var(--nuit); }
+  .bouton.plein { background:var(--menthe); border-color:var(--menthe); color:var(--menthe-texte); }
+  .bouton:focus-visible { outline:3px solid var(--ciel-fonce); outline-offset:2px; }
+  .code { font-size:32px; font-weight:700; letter-spacing:6px; text-align:center; margin:6px 0 2px; overflow-wrap:anywhere; }
+  footer { padding:4px 16px 32px; }
+  [hidden] { display:none !important; }
+</style>
+</head>
+<body>
+<header><div class="cadre">
+  <p class="marque"><img src="/logo-pp.png" alt="" width="28" height="28" style="vertical-align:middle;margin-right:8px">Planet Pétanque · version bêta</p>
+  <h1 id="titre">Rejoignez un championnat sur Planet Pétanque</h1>
+  <p class="sous" id="sous">Suivez vos parties de pétanque entre copains : classement, scores et statistiques de chacun.</p>
+</div></header>
+
+<main><div class="cadre">
+  <div class="carte" id="perimee" hidden>
+    <h2>Cette invitation n'est plus valable</h2>
+    <p>Le championnat a peut-être été supprimé, ou le lien est incomplet. Demandez un nouveau lien à la personne qui vous a invité.</p>
+  </div>
+
+  <div id="invitation">
+    <div class="carte">
+      <h2>Merci de faire partie des premiers testeurs !</h2>
+      <p>Planet Pétanque est encore en version bêta : l'application n'est pas sur le Play Store pour le moment. Votre téléphone va donc vous demander une confirmation avant de l'installer. C'est normal pour une application en test, et vous pouvez accepter sans crainte.</p>
+      <p class="discret">Pas de mot de passe : votre e-mail n'est demandé que pour rejoindre un club. L'application n'accède ni à vos contacts, ni à vos photos.</p>
+    </div>
+
+    <div class="carte" id="android">
+      <h2>Pour rejoindre le championnat</h2>
+      <ol>
+        <li id="etape1">Touchez « Télécharger l'application ».</li>
+        <li>Ouvrez le fichier téléchargé et acceptez l'installation.</li>
+        <li>Revenez sur cette page et touchez « Rejoindre le championnat ».</li>
+      </ol>
+      <a class="bouton plein" id="telecharger" href="#" hidden>Télécharger l'application</a>
+      <a class="bouton" id="ouvrir" href="#" hidden>Rejoindre le championnat</a>
+    </div>
+
+    <div class="carte" id="autre" hidden>
+      <h2 id="autreTitre">Disponible sur Android pour le moment</h2>
+      <p id="autreTexte">L'application n'existe pas encore pour iPhone. Merci de votre patience !</p>
+    </div>
+
+    <div class="carte" id="blocCode" hidden>
+      <h2>Votre code d'invitation</h2>
+      <p class="code" id="code"></p>
+      <p class="discret">Si le bouton ne fait rien : ouvrez l'application, touchez « Rejoindre un championnat » et saisissez ce code.</p>
+      <button class="bouton" id="copier" type="button">Copier le code</button>
+    </div>
+  </div>
+</div></main>
+
+<footer><div class="cadre">
+  <p class="discret" id="pied">Une remarque, un bug, une idée ? Dites-le à la personne qui vous a invité, c'est fait pour ça. Merci pour votre aide !</p>
+</div></footer>
+
+<script>
+// ---------------------------------------------------------------------
+// Réglages
+// ---------------------------------------------------------------------
+// Adresse du fichier d'installation Android (.apk). Vide : pas de bouton de
+// téléchargement, la page invite à le demander à la personne qui invite.
+var LIEN_APK = 'https://expo.dev/artifacts/eas/xul1xZECbXAXDjMfQmh02uq6LGNFD12xhpsnHy6AIro.apk';
+// Projet Supabase : la clé « publishable » est faite pour être publique.
+var SUPABASE_URL = 'https://zaguyaehtpbayzadbpjn.supabase.co';
+var SUPABASE_CLE = 'sb_publishable_F__83h0YqfeXxxvaklkeeQ_9wAXXVWs';
+// Lien qui ouvre l'application installée sur le championnat.
+var LIEN_APPLI = 'planetepetanque://rejoindre?code=';
+
+(function () {
+  var el = function (id) { return document.getElementById(id); };
+  var code = (new URLSearchParams(location.search).get('c') || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 12);
+  var agent = navigator.userAgent || '';
+  var android = /Android/i.test(agent);
+  var iphone = /iPhone|iPad|iPod/i.test(agent);
+
+  // Selon l'appareil : les étapes Android, ou un mot d'explication.
+  if (!android) {
+    el('android').hidden = true;
+    el('autre').hidden = false;
+    if (!iphone) {
+      el('autreTitre').textContent = 'Ouvrez ce lien sur votre téléphone Android';
+      el('autreTexte').textContent = 'L’application s’installe sur un téléphone Android. Rouvrez ce lien depuis votre téléphone.';
+    }
+  }
+  if (LIEN_APK) {
+    el('telecharger').href = LIEN_APK;
+    el('telecharger').hidden = false;
+  } else {
+    el('etape1').textContent = 'Demandez le fichier d’installation à la personne qui vous a invité.';
+  }
+  if (code) {
+    el('code').textContent = code;
+    el('blocCode').hidden = !android;
+    el('ouvrir').href = LIEN_APPLI + encodeURIComponent(code);
+    el('ouvrir').hidden = false;
+    el('copier').addEventListener('click', function () {
+      var fini = function () { el('copier').textContent = 'Code copié'; };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(code).then(fini, function () {});
+    });
+  }
+
+  // Nom du championnat et prénom de la personne qui invite.
+  if (!code) return;
+  fetch(SUPABASE_URL + '/rest/v1/rpc/apercu_invitation', {
+    method: 'POST',
+    headers: { 'apikey': SUPABASE_CLE, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code_saisi: code }),
+  }).then(function (r) { return r.ok ? r.json() : Promise.reject(); }).then(function (lignes) {
+    if (!lignes || lignes.length === 0) {
+      el('titre').textContent = 'Invitation introuvable';
+      el('sous').hidden = true;
+      el('invitation').hidden = true;
+      el('perimee').hidden = false;
+      return;
+    }
+    var a = lignes[0];
+    el('titre').textContent = (a.invite_par ? a.invite_par + ' vous invite' : 'Vous êtes invité') + ' à rejoindre : ' + a.nom;
+    document.title = a.nom + ' · Planet Pétanque';
+    if (a.invite_par) {
+      el('pied').textContent = 'Une remarque, un bug, une idée ? Dites-le à ' + a.invite_par + ', c’est fait pour ça. Merci pour votre aide !';
+      if (!LIEN_APK) el('etape1').textContent = 'Demandez le fichier d’installation à ' + a.invite_par + '.';
+    }
+  }).catch(function () { /* Sans réseau ou sans réponse : la page reste générique. */ });
+})();
+</script>
+</body>
+</html>
